@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { Button as MuiButton } from "@mui/material";
 
 const Button = ({ children, type, variant, onClik, ...rest }) => {

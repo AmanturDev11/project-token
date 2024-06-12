@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { Input as MuiInput } from "@mui/material";
 
 const Input = ({ type = "text", variant, ...rest }) => {
