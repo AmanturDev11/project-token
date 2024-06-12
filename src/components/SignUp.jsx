@@ -1,9 +1,17 @@
-import { TextField, styled } from "@mui/material";
+import { Container, TextField, styled } from "@mui/material";
+import { useForm } from "react-hook-form";
+import * as yup from "yup";
+import { useDispatch } from "react-redux";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { signUp } from "../store/auth/authThunk"; // Убедитесь, что путь правильный
+import { NavLink } from "react-router-dom";
+import Button from "./UI/Button";
 
 const INPUT_ARRAY = [
 	{
 		name: "firstName",
 		label: "Имя",
+		type: "text",
 	},
 	{
 		name: "lastName",
@@ -27,20 +35,65 @@ const INPUT_ARRAY = [
 	},
 ];
 
+const schema = yup
+	.object({
+		firstName: yup.string().required("Заполни все поля"),
+		lastName: yup.string().required("Заполни все поля"),
+		phoneNumber: yup.string().required("Заполни все поля"),
+		email: yup
+			.string()
+			.email("Неверный формат email")
+			.required("Заполни все поля"),
+		password: yup
+			.string()
+			.min(6, "Минимум 6 символов")
+			.max(16, "Максимум 16 символов")
+			.required("Заполни все поля"),
+	})
+	.required();
+
 const SignUp = () => {
+	const dispatch = useDispatch();
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+	} = useForm({
+		defaultValues: {
+			firstName: "",
+			lastName: "",
+			phoneNumber: "",
+			email: "",
+			password: "",
+		},
+		resolver: yupResolver(schema),
+	});
+
+	const submitHandler = (data) => {
+		dispatch(signUp(data));
+	};
+
 	return (
-		<div>
-			<FormContainer>
+		<Container>
+			<FormContainer onSubmit={handleSubmit(submitHandler)}>
 				{INPUT_ARRAY.map((item) => (
 					<TextField
+						key={item.name}
 						placeholder={item.label}
 						label={item.label}
-						key={item.name}
-						type={item.name}
+						type={item.type}
+						error={!!errors[item.name]}
+						helperText={errors[item.name]?.message}
+						{...register(item.name)}
 					/>
 				))}
+				<Button type="submit" variant="contained" size="large">
+					Регистрация
+				</Button>
+				<NavLink to="/signin">Войти</NavLink>{" "}
+				{/* Используйте абсолютный путь */}
 			</FormContainer>
-		</div>
+		</Container>
 	);
 };
 
@@ -53,7 +106,5 @@ const FormContainer = styled("form")(() => ({
 	gap: "20px",
 	border: "1px solid",
 	width: "fit-content",
-	padding: "30px",
-	margin: "0 auto",
-	borderRadius: "8px",
+	padding: "20px",
 }));
